@@ -254,7 +254,8 @@ namespace LiveCharts.Wpf
         /// The data label property
         /// </summary>
         public static readonly DependencyProperty DataLabelProperty = DependencyProperty.Register(
-            "DataLabel", typeof(bool), typeof(AxisSection), new PropertyMetadata(default(bool)));
+            "DataLabel", typeof(bool), typeof(AxisSection), new PropertyMetadata(default(bool),OnDataLabelChanged));
+
         /// <summary>
         /// Gets or sets a value indicating whether the section should display a label that displays its current value.
         /// </summary>
@@ -310,6 +311,7 @@ namespace LiveCharts.Wpf
                 Model.Chart.View.AddToView(this);
                 Model.Chart.View.AddToDrawMargin(_rectangle);
                 Model.Chart.View.AddToView(_label);
+                Panel.SetZIndex(_label, int.MaxValue);
                 _rectangle.Height = 0;
                 _rectangle.Width = 0;
                 Canvas.SetLeft(_rectangle, 0d);
@@ -335,7 +337,6 @@ namespace LiveCharts.Wpf
             }
 
             var anSpeed = Model.Chart.View.AnimationsSpeed;
-
             if (DataLabel)
             {
                 if (DataLabelForeground != null) _label.Foreground = DataLabelForeground;
@@ -499,6 +500,14 @@ namespace LiveCharts.Wpf
                     new DoubleAnimation(labelTab, chart.View.AnimationsSpeed));
             }
 
+        }
+
+        private static void OnDataLabelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is AxisSection section)
+            {
+                section._label.Visibility = section.DataLabel ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
     }
 }
